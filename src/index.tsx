@@ -721,9 +721,419 @@ app.post('/api/mint-nft', async (c) => {
   }
 })
 
+// Dashboard route with token gating
 app.get('/dashboard', (c) => {
-  // Token-gated dashboard (to be implemented)
-  return c.json({ message: 'Dashboard - Token gating to be implemented' })
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <i class="fas fa-passport text-2xl text-indigo-600 mr-2"></i>
+              <span class="text-xl font-bold text-gray-900">VietPass</span>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span id="user-email" class="text-sm text-gray-600"></span>
+              <button 
+                onclick="vietPassAuth.logout()"
+                class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm"
+              >
+                <i class="fas fa-sign-out-alt mr-1"></i>
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Dashboard Content */}
+      <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Access Check Message */}
+        <div id="access-denied" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+          <h2 class="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
+          <p class="text-red-600 mb-4">You need a valid VietPass NFT to access this dashboard.</p>
+          <button 
+            onclick="window.location.href='/auth'"
+            class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Get Your VietPass
+          </button>
+        </div>
+
+        {/* Loading State */}
+        <div id="loading" class="text-center py-12">
+          <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+          <p class="text-gray-600">Verifying your VietPass membership...</p>
+        </div>
+
+        {/* Dashboard Content */}
+        <div id="dashboard-content" class="hidden space-y-8">
+          {/* Welcome Section */}
+          <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white">
+            <div class="flex items-center justify-between">
+              <div>
+                <h1 class="text-3xl font-bold mb-2">Welcome back!</h1>
+                <p class="text-indigo-100 mb-4">Your VietPass is active and ready to use</p>
+                <div class="flex items-center text-sm">
+                  <i class="fas fa-calendar-alt mr-2"></i>
+                  <span id="membership-expires">Expires: Loading...</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                  <div class="text-sm text-indigo-100 mb-1">NFT Token ID</div>
+                  <div id="nft-token-id" class="text-xl font-bold">#123456</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Digital Membership Card */}
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <i class="fas fa-id-card text-indigo-600 mr-3"></i>
+              Digital Membership Card
+            </h2>
+            
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl p-6 text-white max-w-md">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <i class="fas fa-passport text-2xl mr-3"></i>
+                  <span class="text-xl font-bold">VietPass</span>
+                </div>
+                <span class="text-sm bg-white/20 px-2 py-1 rounded">ACTIVE</span>
+              </div>
+              
+              <div class="space-y-2 mb-4">
+                <div class="text-sm text-indigo-100">Member</div>
+                <div id="member-name" class="font-semibold">Loading...</div>
+                <div class="text-sm text-indigo-100">Valid Until</div>
+                <div id="card-expires" class="font-semibold">Loading...</div>
+              </div>
+              
+              <div class="border-t border-white/20 pt-4">
+                <div class="text-xs text-indigo-100">Show this card at partner locations for discounts</div>
+              </div>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-600">
+              <i class="fas fa-info-circle mr-1"></i>
+              Screenshot this card or show it on your phone at partner locations to receive your 5% discount.
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div class="grid md:grid-cols-3 gap-6">
+            <a 
+              href="/static/welcome-kit.pdf" 
+              download
+              class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                  <i class="fas fa-download text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Download Welcome Kit</h3>
+                  <p class="text-sm text-gray-500">Essential Da Nang survival guide</p>
+                </div>
+              </div>
+            </a>
+            
+            <button 
+              onclick="document.getElementById('partners-section').scrollIntoView({behavior: 'smooth'})"
+              class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow text-left"
+            >
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+                  <i class="fas fa-store text-indigo-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Browse Partners</h3>
+                  <p class="text-sm text-gray-500">Discover local businesses</p>
+                </div>
+              </div>
+            </button>
+            
+            <a 
+              href="https://chat.whatsapp.com/vietpass" 
+              target="_blank"
+              class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                  <i class="fab fa-whatsapp text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900">Join Community</h3>
+                  <p class="text-sm text-gray-500">Connect with other nomads</p>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          {/* Partner Network Section */}
+          <div id="partners-section" class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-handshake text-indigo-600 mr-3"></i>
+                Partner Network
+              </h2>
+              <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+                15+ Partners
+              </span>
+            </div>
+            
+            {/* Filter Tabs */}
+            <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+              <button 
+                onclick="filterPartners('all', this)"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-white shadow-sm"
+                id="tab-all"
+              >
+                All Partners
+              </button>
+              <button 
+                onclick="filterPartners('accommodation', this)"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                id="tab-accommodation"
+              >
+                Accommodation
+              </button>
+              <button 
+                onclick="filterPartners('transport', this)"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                id="tab-transport"
+              >
+                Transport
+              </button>
+              <button 
+                onclick="filterPartners('lifestyle', this)"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                id="tab-lifestyle"
+              >
+                Lifestyle
+              </button>
+            </div>
+            
+            {/* Partners Grid */}
+            <div class="grid md:grid-cols-2 gap-6" id="partners-list">
+              {/* Partner cards will be loaded here via JavaScript */}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Dashboard JavaScript */}
+      <script>{`
+        // Dashboard initialization
+        document.addEventListener('DOMContentLoaded', async function() {
+          await initDashboard();
+        });
+        
+        async function initDashboard() {
+          try {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('vietpass_user') || 'null');
+            if (!user) {
+              showAccessDenied();
+              return;
+            }
+            
+            // Display user email
+            document.getElementById('user-email').textContent = user.email || 'Member';
+            
+            // Check NFT membership
+            const nft = JSON.parse(localStorage.getItem('vietpass_nft') || 'null');
+            if (!nft) {
+              showAccessDenied();
+              return;
+            }
+            
+            // Check if membership is still valid
+            const expiresAt = new Date(nft.expiresAt);
+            const now = new Date();
+            
+            if (now > expiresAt) {
+              showExpiredMembership();
+              return;
+            }
+            
+            // Show dashboard content
+            showDashboard(user, nft);
+            
+          } catch (error) {
+            console.error('Dashboard initialization error:', error);
+            showAccessDenied();
+          }
+        }
+        
+        function showAccessDenied() {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('access-denied').classList.remove('hidden');
+        }
+        
+        function showExpiredMembership() {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('access-denied').classList.remove('hidden');
+          document.querySelector('#access-denied h2').textContent = 'Membership Expired';
+          document.querySelector('#access-denied p').textContent = 'Your VietPass membership has expired. Renew to continue accessing partner benefits.';
+        }
+        
+        function showDashboard(user, nft) {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('dashboard-content').classList.remove('hidden');
+          
+          // Update membership info
+          const expiresAt = new Date(nft.expiresAt);
+          const expiresFormatted = expiresAt.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+          
+          document.getElementById('membership-expires').textContent = 'Expires: ' + expiresFormatted;
+          document.getElementById('nft-token-id').textContent = '#' + nft.tokenId;
+          document.getElementById('member-name').textContent = user.name || user.email;
+          document.getElementById('card-expires').textContent = expiresFormatted;
+          
+          // Load partners
+          loadPartners();
+        }
+        
+        async function loadPartners() {
+          // Mock partner data - in production this would come from your API
+          const partners = [
+            {
+              id: 1,
+              name: "Beachfront Hostel",
+              category: "accommodation",
+              type: "Best Value",
+              address: "123 Beach Road, An Thuong",
+              description: "Affordable beachfront accommodation perfect for digital nomads",
+              discount: "5% off nightly rates",
+              insider_tip: "Ask for a room on the 3rd floor for the best ocean views",
+              contact: "booking@beachfronthostel.com"
+            },
+            {
+              id: 2,
+              name: "Premium Apartments",
+              category: "accommodation",
+              type: "Premium",
+              address: "456 Luxury Lane, My Khe",
+              description: "High-end furnished apartments with coworking spaces",
+              discount: "5% off monthly rentals",
+              insider_tip: "Mention VietPass when booking for complimentary airport pickup",
+              contact: "info@premiumapartments.vn"
+            },
+            {
+              id: 3,
+              name: "Da Nang Motorbike Rental",
+              category: "transport",
+              type: "Trusted Provider",
+              address: "789 Motorbike St, Hai Chau",
+              description: "Reliable motorbike rentals with insurance included",
+              discount: "5% off weekly/monthly rentals",
+              insider_tip: "Best selection of bikes available after 10am",
+              contact: "+84 123 456 789"
+            },
+            {
+              id: 4,
+              name: "Fitness Pro Gym",
+              category: "lifestyle",
+              type: "Premium Facility",
+              address: "321 Fitness Ave, An Thuong",
+              description: "Modern gym with international equipment",
+              discount: "5% off membership fees",
+              insider_tip: "Least crowded between 2-4 PM on weekdays",
+              contact: "gym@fitnesspro.vn"
+            },
+            {
+              id: 5,
+              name: "Cà Phê Sữa Đá Corner",
+              category: "lifestyle",
+              type: "Local Favorite",
+              address: "654 Coffee Street, Hai Chau",
+              description: "Authentic Vietnamese coffee experience",
+              discount: "Free coffee voucher included",
+              insider_tip: "Try the coconut coffee - it's not on the menu but they'll make it",
+              contact: "Direct visit only"
+            }
+          ];
+          
+          // Store partners globally for filtering
+          allPartners = partners;
+          renderPartners(partners);
+        }
+        
+        // Global partners data
+        let allPartners = [];
+        
+        function filterPartners(category, clickedButton) {
+          // Update active tab styling
+          document.querySelectorAll('[id^=\"tab-\"]').forEach(btn => {
+            btn.classList.remove('bg-white', 'shadow-sm');
+          });
+          clickedButton.classList.add('bg-white', 'shadow-sm');
+          
+          // Filter and render partners
+          const filteredPartners = category === 'all' 
+            ? allPartners 
+            : allPartners.filter(p => p.category === category);
+          
+          renderPartners(filteredPartners);
+        }
+        
+        function renderPartners(partners) {
+          const container = document.getElementById('partners-list');
+          
+          const partnersHTML = partners.map(partner => \`
+            <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-1">\${partner.name}</h3>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    \${partner.type}
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-green-600 font-semibold text-sm">\${partner.discount}</span>
+                </div>
+              </div>
+              
+              <p class="text-gray-600 text-sm mb-3">\${partner.description}</p>
+              
+              <div class="space-y-2 mb-4">
+                <div class="flex items-start text-sm">
+                  <i class="fas fa-map-marker-alt text-gray-400 mt-1 mr-2"></i>
+                  <span class="text-gray-600">\${partner.address}</span>
+                </div>
+                
+                <div class="flex items-start text-sm">
+                  <i class="fas fa-lightbulb text-yellow-500 mt-1 mr-2"></i>
+                  <span class="text-gray-600"><strong>Insider Tip:</strong> \${partner.insider_tip}</span>
+                </div>
+                
+                <div class="flex items-start text-sm">
+                  <i class="fas fa-envelope text-gray-400 mt-1 mr-2"></i>
+                  <span class="text-gray-600">\${partner.contact}</span>
+                </div>
+              </div>
+              
+              <div class="bg-indigo-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-indigo-800 mb-1">How to Redeem:</div>
+                <div class="text-sm text-indigo-700">Show your VietPass digital membership card to receive your discount</div>
+              </div>
+            </div>
+          \`).join('');
+          
+          container.innerHTML = partnersHTML;
+        }
+      `}</script>
+    </div>
+  )
 })
 
 export default app

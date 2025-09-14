@@ -1,0 +1,51 @@
+{
+  "name": "VietPass #{TOKEN_ID}",
+  "description": "VietPass is the essential digital companion for digital nomads in Da Nang. This NFT provides 30 days of exclusive access to curated local partners, insider tips, and the complete Digital Welcome Kit. Built for VietBUIDL Hackathon on U2U Network.",
+  "image": "https://vietpass.pages.dev/static/vietpass-nft.png",
+  "external_url": "https://vietpass.pages.dev",
+  "background_color": "4F46E5",
+  "animation_url": null,
+  "attributes": [
+    {
+      "trait_type": "Membership Type",
+      "value": "VietPass Digital Nomad"
+    },
+    {
+      "trait_type": "Location",
+      "value": "Da Nang, Vietnam"
+    },
+    {
+      "trait_type": "Duration",
+      "value": "30 Days"
+    },
+    {
+      "trait_type": "Access Level",
+      "value": "Premium"
+    },
+    {
+      "trait_type": "Network",
+      "value": "U2U"
+    },
+    {
+      "trait_type": "Minted Date",
+      "value": "{MINTED_DATE}"
+    },
+    {
+      "trait_type": "Expires Date",
+      "value": "{EXPIRES_DATE}"
+    },
+    {
+      "trait_type": "Member Email",
+      "value": "{MEMBER_EMAIL}"
+    }
+  ],
+  "properties": {
+    "partner_count": 15,
+    "discount_percentage": 5,
+    "welcome_kit_included": true,
+    "community_access": true,
+    "coffee_voucher": true,
+    "curated_map": true,
+    "renewal_available": true
+  }
+}

@@ -1,0 +1,53 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.95" />
+      <stop offset="100%" style="stop-color:#F8FAFC;stop-opacity:0.95" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bgGradient)" rx="20"/>
+  
+  <!-- Card Container -->
+  <rect x="30" y="30" width="340" height="340" fill="url(#cardGradient)" rx="15" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  
+  <!-- Header -->
+  <text x="200" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">VietPass</text>
+  
+  <!-- Passport Icon -->
+  <g transform="translate(170, 90)">
+    <rect x="0" y="0" width="60" height="80" fill="#4F46E5" rx="8"/>
+    <rect x="5" y="5" width="50" height="70" fill="none" stroke="white" stroke-width="2" rx="4"/>
+    <rect x="10" y="15" width="40" height="25" fill="white" rx="3"/>
+    <circle cx="30" cy="27" r="8" fill="#4F46E5"/>
+    <rect x="15" y="45" width="30" height="3" fill="#4F46E5" rx="1"/>
+    <rect x="15" y="52" width="25" height="2" fill="#9CA3AF" rx="1"/>
+    <rect x="15" y="57" width="20" height="2" fill="#9CA3AF" rx="1"/>
+  </g>
+  
+  <!-- Membership Details -->
+  <text x="200" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#374151">Digital Nomad Pass</text>
+  <text x="200" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6B7280">Da Nang, Vietnam</text>
+  
+  <!-- Features -->
+  <g transform="translate(60, 260)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="12" fill="#374151">✓ 30 Days Exclusive Access</text>
+    <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" fill="#374151">✓ Curated Partner Network</text>
+    <text x="0" y="40" font-family="Arial, sans-serif" font-size="12" fill="#374151">✓ Digital Welcome Kit</text>
+    <text x="0" y="60" font-family="Arial, sans-serif" font-size="12" fill="#374151">✓ 5% Partner Discounts</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="200" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#9CA3AF">Powered by U2U Network</text>
+  
+  <!-- Decorative Elements -->
+  <circle cx="80" cy="80" r="3" fill="rgba(255,255,255,0.6)"/>
+  <circle cx="320" cy="120" r="2" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="90" cy="320" r="2" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="310" cy="300" r="3" fill="rgba(255,255,255,0.3)"/>
+</svg>
