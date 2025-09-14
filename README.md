@@ -6,6 +6,8 @@
 - **Features**: Web3-powered NFT membership system with frictionless onboarding and real-world utility
 
 ## 🌐 URLs
+- **Production**: https://1038f013.vietpass.pages.dev
+- **GitHub**: https://github.com/iurii-pavlu/danang-nomads
 - **Development**: https://3000-i7iav6326qp990ekbmbph-6532622b.e2b.dev
 - **Landing Page**: `/` - Beautiful homepage with value proposition
 - **Auth Flow**: `/auth` - Social login via Google (Crossmint)
@@ -163,7 +165,8 @@ U2U_RPC_URL=https://rpc-mainnet.uniultra.xyz
 
 ## 🚀 Deployment Status
 - **Platform**: Cloudflare Pages
-- **Status**: ✅ Development Complete
+- **Status**: ✅ LIVE IN PRODUCTION
+- **Production URL**: https://1038f013.vietpass.pages.dev
 - **Tech Stack**: Hono + TypeScript + TailwindCSS + U2U Network
 - **Last Updated**: September 14, 2025
 
