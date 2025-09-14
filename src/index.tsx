@@ -407,6 +407,270 @@ app.get('/auth', (c) => {
   )
 })
 
+// Payment page route
+app.get('/payment', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+      <div class="max-w-lg w-full">
+        <div class="text-center mb-8">
+          <div class="flex items-center justify-center mb-4">
+            <i class="fas fa-passport text-4xl text-indigo-600 mr-3"></i>
+            <span class="text-2xl font-bold text-gray-900">VietPass</span>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Complete Your Purchase</h1>
+          <p class="text-gray-600">Secure your VietPass NFT with Stripe</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <div class="space-y-6">
+            {/* Order Summary */}
+            <div class="border-b pb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-passport text-white text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900">VietPass NFT</h4>
+                    <p class="text-sm text-gray-500">30 days access + Digital Welcome Kit</p>
+                  </div>
+                </div>
+                <span class="text-2xl font-bold text-indigo-600">$19</span>
+              </div>
+            </div>
+            
+            {/* What's Included */}
+            <div class="bg-indigo-50 rounded-xl p-6">
+              <h4 class="font-semibold text-gray-900 mb-3">What's Included:</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  VietPass NFT on U2U Network
+                </div>
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  30 days exclusive partner access
+                </div>
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  Digital Welcome Kit (PDF)
+                </div>
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  5% discounts at all partners
+                </div>
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  Free coffee voucher
+                </div>
+                <div class="flex items-center text-gray-700">
+                  <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                  VietPass community access
+                </div>
+              </div>
+            </div>
+            
+            {/* Payment Form */}
+            <div id="payment-form">
+              <h4 class="font-semibold text-gray-900 mb-4">Payment Details</h4>
+              
+              {/* Stripe Elements will be inserted here */}
+              <div id="card-element" class="p-4 border border-gray-300 rounded-lg mb-4">
+                {/* Stripe Elements Placeholder */}
+              </div>
+              
+              <div id="card-errors" role="alert" class="text-red-600 text-sm mb-4 hidden"></div>
+              
+              <button 
+                id="submit-payment"
+                class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-105 flex items-center justify-center"
+              >
+                <i class="fas fa-lock mr-3"></i>
+                Complete Purchase - $19
+              </button>
+              
+              <p class="text-xs text-gray-400 text-center mt-4">
+                Secure payment powered by Stripe. Your NFT will be minted automatically upon successful payment.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-6">
+          <button 
+            onclick="window.location.href='/auth'"
+            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+          >
+            ← Back to Login
+          </button>
+        </div>
+      </div>
+      
+      {/* Stripe Payment Script */}
+      <script>{`
+        // Initialize Stripe
+        const stripe = Stripe('pk_test_YOUR_STRIPE_PUBLISHABLE_KEY'); // This will be replaced with actual key
+        const elements = stripe.elements();
+        
+        // Create card element
+        const cardElement = elements.create('card', {
+          style: {
+            base: {
+              fontSize: '16px',
+              color: '#424770',
+              '::placeholder': {
+                color: '#aab7c4',
+              },
+            },
+          },
+        });
+        
+        // Mount card element
+        cardElement.mount('#card-element');
+        
+        // Handle form submission
+        document.getElementById('submit-payment').addEventListener('click', async function(event) {
+          event.preventDefault();
+          
+          const button = event.target;
+          button.disabled = true;
+          button.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Processing...';
+          
+          try {
+            // Create payment intent
+            const response = await fetch('/api/stripe/create-payment-intent', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                amount: 1900, // $19.00 in cents
+                currency: 'usd',
+                user: JSON.parse(localStorage.getItem('vietpass_user') || '{}')
+              })
+            });
+            
+            const { clientSecret } = await response.json();
+            
+            // Confirm payment
+            const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+              payment_method: {
+                card: cardElement,
+              }
+            });
+            
+            if (error) {
+              throw error;
+            }
+            
+            // Payment successful, mint NFT
+            if (paymentIntent.status === 'succeeded') {
+              await mintVietPassNFT(paymentIntent.id);
+            }
+            
+          } catch (error) {
+            console.error('Payment error:', error);
+            document.getElementById('card-errors').textContent = error.message;
+            document.getElementById('card-errors').classList.remove('hidden');
+            
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-lock mr-3"></i>Complete Purchase - $19';
+          }
+        });
+        
+        async function mintVietPassNFT(paymentIntentId) {
+          try {
+            const response = await fetch('/api/mint-nft', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                paymentIntentId,
+                user: JSON.parse(localStorage.getItem('vietpass_user') || '{}')
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              // Store NFT info
+              localStorage.setItem('vietpass_nft', JSON.stringify(result.nft));
+              
+              // Redirect to success page
+              window.location.href = '/success';
+            } else {
+              throw new Error(result.error || 'NFT minting failed');
+            }
+          } catch (error) {
+            console.error('NFT minting error:', error);
+            alert('Payment successful but NFT minting failed. Please contact support.');
+          }
+        }
+      `}</script>
+    </div>
+  )
+})
+
+// Success page route
+app.get('/success', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center px-4">
+      <div class="max-w-lg w-full text-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-12">
+          <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-check text-3xl text-white"></i>
+          </div>
+          
+          <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome to VietPass!</h1>
+          
+          <p class="text-lg text-gray-600 mb-8">
+            Your VietPass NFT has been minted successfully! 
+            You now have exclusive access to our curated partner network in Da Nang.
+          </p>
+          
+          <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 mb-8">
+            <h3 class="font-semibold text-gray-900 mb-4">Next Steps:</h3>
+            <div class="space-y-3 text-left">
+              <div class="flex items-center">
+                <i class="fas fa-download text-indigo-600 mr-3"></i>
+                <span>Download your Digital Welcome Kit</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-tachometer-alt text-purple-600 mr-3"></i>
+                <span>Access your member dashboard</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-map-marked-alt text-green-600 mr-3"></i>
+                <span>Explore partner locations</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <button 
+              onclick="window.location.href='/dashboard'"
+              class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-105"
+            >
+              Go to Dashboard
+            </button>
+            
+            <a 
+              href="/static/welcome-kit.pdf" 
+              download
+              class="w-full bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-4 px-6 rounded-xl font-semibold transition-all inline-block"
+            >
+              <i class="fas fa-download mr-2"></i>
+              Download Welcome Kit
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+})
+
 // API Routes
 app.post('/api/auth/crossmint', async (c) => {
   // Crossmint authentication endpoint
@@ -414,13 +678,47 @@ app.post('/api/auth/crossmint', async (c) => {
 })
 
 app.post('/api/stripe/create-payment-intent', async (c) => {
-  // Stripe payment intent creation
-  return c.json({ message: 'Stripe payment intent endpoint' })
+  try {
+    const body = await c.req.json()
+    const { amount, currency, user } = body
+    
+    // Here you would integrate with Stripe API
+    // For now, return a mock response
+    const clientSecret = 'pi_test_mock_client_secret'
+    
+    return c.json({ 
+      clientSecret,
+      amount,
+      currency 
+    })
+  } catch (error) {
+    return c.json({ error: 'Payment intent creation failed' }, 500)
+  }
 })
 
 app.post('/api/mint-nft', async (c) => {
-  // NFT minting endpoint after successful payment
-  return c.json({ message: 'NFT minting endpoint' })
+  try {
+    const body = await c.req.json()
+    const { paymentIntentId, user } = body
+    
+    // Here you would integrate with U2U Network and mint the NFT
+    // For now, return a mock response
+    const mockNFT = {
+      tokenId: Math.floor(Math.random() * 1000000),
+      contractAddress: '0x...',
+      network: 'U2U',
+      mintedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+      user: user.email
+    }
+    
+    return c.json({ 
+      success: true,
+      nft: mockNFT
+    })
+  } catch (error) {
+    return c.json({ error: 'NFT minting failed' }, 500)
+  }
 })
 
 app.get('/dashboard', (c) => {

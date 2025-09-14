@@ -20,6 +20,12 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* Crossmint SDK */}
         <script src="https://www.crossmint.com/assets/crossmint/embed/checkout.js"></script>
+        
+        {/* Stripe */}
+        <script src="https://js.stripe.com/v3/"></script>
+        
+        {/* VietPass Auth */}
+        <script src="/static/crossmint-auth.js"></script>
       </head>
       <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
         {children}
